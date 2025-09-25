@@ -1072,7 +1072,7 @@ class KRSDetailPage extends StatelessWidget {
               title: 'Mobile Programming',
               schedule: 'Senin, 08:30 - 10:00 WIB',
               room: 'Ruang A12.7',
-              lecturer: 'Syepry Maulana Husain, S.Kom, MTI',
+              lecturer: 'KURNAWAN DWI PRASETYO',
               cardColor: const Color(0xFF5E2BFF),
             ),
             const SizedBox(height: 16),
