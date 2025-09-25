@@ -1,96 +1,55 @@
 # SIAKAD Apps
 
-A Student Information System application with Flutter frontend and Go backend.
-
-## Backend Setup (siakad_backend)
+## Initial Setup and Installation
 
 ### Prerequisites
-- Go 1.19 or higher
-- MySQL database
+- Git installed on your system
+- GitHub account
+- Node.js (if this is a Node.js project)
+- Any other project-specific dependencies
 
-### MySQL Database Setup
+### Clone the Repository
+To get started with the SIAKAD Apps project, you'll need to clone the repository to your local machine.
 
-1. Install MySQL server on your system
-2. Create a new database:
-   ```sql
-   CREATE DATABASE siakad_db;
-   ```
+1. Open your terminal or command prompt
+2. Navigate to the directory where you want to store the project
+3. Run the following command:
 
-3. Create a user with appropriate permissions:
-   ```sql
-   CREATE USER 'siakad_user'@'localhost' IDENTIFIED BY 'your_password';
-   GRANT ALL PRIVILEGES ON siakad_db.* TO 'siakad_user'@'localhost';
-   FLUSH PRIVILEGES;
-   ```
+git clone https://github.com/your-username/siakad_apps.git
 
-4. Update the database credentials in the `.env` file (create one in the `siakad_backend` directory):
-   ```
-   DBUSER=siakad_user
-   DBPASS=your_password
-   DBHOST=localhost
-   DBPORT=3306
-   DBNAME=siakad_db
-   PORT=8080
-   ```
+4. Navigate into the project directory:
 
-5. Set up the database tables by running the SQL script:
-   ```bash
-   mysql -u siakad_user -p siakad_db < database/setup.sql
-   ```
+cd siakad_apps
 
-### Setup Instructions
+### Install Dependencies
+After cloning the repository, install the necessary dependencies:
 
-1. Install dependencies:
-   ```
-   cd siakad_backend
-   go mod tidy
-   ```
+npm install
+or if you're using yarn:
+yarn install
 
-2. Build and run:
-   ```
-   go build .
-   ./siakad_backend
-   ```
+### Configure Environment Variables
+Create a `.env` file in the root directory and configure the necessary environment variables. You can copy the `.env.example` file if it exists:
 
-### API Endpoints
+cp .env.example .env
 
-- POST `/api/register` - Register a new user
-- POST `/api/login` - Login with email and password
-- GET `/api/profile` - Get user profile (requires authentication)
-- POST `/api/change-password` - Change password (requires authentication)
-- POST `/api/logout` - Logout (requires authentication)
+Then edit the `.env` file with your specific configuration.
 
-### Registration Process
+### Run the Application
+Once everything is set up, you can run the application locally:
 
-To register a new account, send a POST request to `/api/register` with the following JSON payload:
+npm start
+or for development mode:
+npm run dev
 
-```json
-{
-  "name": "John Doe",
-  "nim": "1234567890",
-  "email": "john.doe@example.com",
-  "password": "securepassword",
-  "phone": "081234567890",
-  "program_studi": "Teknik Informatika"
-}
-```
+### Pushing Changes to GitHub
+When you make changes and want to push them to GitHub:
 
-All fields are required except for phone which is optional.
+1. Add your changes:
+git add .
 
-### Authentication
+2. Commit your changes:
+git commit -m "Your descriptive commit message"
 
-This application uses session-based authentication instead of JWT tokens. When a user successfully registers or logs in, a session is created and stored in a cookie. All protected endpoints require a valid session.
-
-### Sample User
-
-After running the setup.sql script, you can log in with:
-- Email: syepry.maulana@umt.ac.id
-- Password: password123
-
-### Troubleshooting
-
-If you encounter database connection issues:
-1. Make sure MySQL is running
-2. Verify your database credentials in the .env file
-3. Ensure the database and user exist
-4. Check that the user has proper permissions on the database
+3. Push to GitHub:
+git push origin main
