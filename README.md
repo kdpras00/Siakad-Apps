@@ -15,7 +15,7 @@ To get started with the SIAKAD Apps project, you'll need to clone the repository
 2. Navigate to the directory where you want to store the project
 3. Run the following command:
 
-git clone https://github.com/your-username/siakad_apps.git
+git clone https://github.com/kdpras00/siakad_apps.git
 
 4. Navigate into the project directory:
 
