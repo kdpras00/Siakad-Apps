@@ -17,6 +17,9 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+//UDAAAAAAAAAAAAAAAAH
+
+
 
 // Halaman Login yang diperbarui
 class LoginPage extends StatelessWidget {
@@ -154,7 +157,7 @@ class LoginPage extends StatelessWidget {
       ),
     );
   }
-}
+} //UDAAAAAAAAAAAAAAAAAAAAAAAAAH
 
 // Halaman Dashboard
 class DashboardPage extends StatelessWidget {
@@ -256,7 +259,7 @@ class DashboardPage extends StatelessWidget {
         ],
       ),
     );
-  }
+  } 
 
   Widget _buildDashboardButton(
     BuildContext context,
@@ -287,7 +290,7 @@ class DashboardPage extends StatelessWidget {
       ),
     );
   }
-}
+} //UDAAAAAAAAAAAAAAAAAAAAAAAAAH
 
 // Halaman Registrasi Akun baru
 class RegistrasiAkunPage extends StatelessWidget {
@@ -403,7 +406,7 @@ class RegistrasiAkunPage extends StatelessWidget {
       ),
     );
   }
-}
+} //UDAAAAAAAAAAAAAAAAAA
 
 // Halaman Lupa Password baru
 class LupaPasswordPage extends StatelessWidget {
@@ -456,7 +459,7 @@ class LupaPasswordPage extends StatelessWidget {
       ),
     );
   }
-}
+} //UDAAAAAAAAAAAAAAAAAA
 
 // Halaman Profil baru
 class ProfilePage extends StatelessWidget {
@@ -607,7 +610,7 @@ class ProfilePage extends StatelessWidget {
         ],
       ),
     );
-  }
+  } 
 
   Widget _buildProfileCard(String label, String value) {
     return Card(
@@ -622,7 +625,7 @@ class ProfilePage extends StatelessWidget {
       ),
     );
   }
-}
+} //UDAAAAAAAAAAAAAAAAAA
 
 // Halaman Ubah Password
 class UbahPasswordPage extends StatelessWidget {
@@ -718,7 +721,7 @@ class UbahPasswordPage extends StatelessWidget {
       ),
     );
   }
-}
+} //UDAAAAAAAAAAAAAAAAAA
 
 // Halaman Informasi
 class InformasiPage extends StatelessWidget {
@@ -869,7 +872,7 @@ class InformasiDetailPage extends StatelessWidget {
       ),
     );
   }
-}
+} //UDAAAAAAAAAAAAAAAAAAAAAAAAAH
 
 // Halaman KRS baru
 class KRSPage extends StatelessWidget {
@@ -1148,7 +1151,7 @@ class KRSDetailPage extends StatelessWidget {
       ),
     );
   }
-}
+} //UDAAAAAAAAAAAAAAAAAAAAAAAAAH
 
 // Halaman KHS (Kartu Hasil Studi)
 class KHSPage extends StatelessWidget {
@@ -1373,7 +1376,7 @@ class KHSDetailPage extends StatelessWidget {
       ),
     );
   }
-}
+} //UDAAAAAAAAAAAAAAAAAAAAAAAAAH
 
 // Halaman Pembayaran baru
 class PembayaranPage extends StatelessWidget {
