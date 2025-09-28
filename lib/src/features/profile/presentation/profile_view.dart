@@ -38,7 +38,7 @@ class ProfilePage extends StatelessWidget {
                       Icon(Icons.account_circle, size: 100, color: Colors.white),
                       SizedBox(height: 10),
                       Text(
-                        'Shevrie Maulana Husain',
+                        'Andini',
                         style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       Text(

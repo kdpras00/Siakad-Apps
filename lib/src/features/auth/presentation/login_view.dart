@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../home/dashboard_page.dart';
+import '../../home/presentation/dashboard_view.dart';
 import 'register_view.dart';
 import 'forgot_password_view.dart';
 
@@ -84,7 +84,7 @@ class LoginPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const DashboardPage(),
+                      builder: (context) => const DashboardView(),
                     ),
                   );
                 },

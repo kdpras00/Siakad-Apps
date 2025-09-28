@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../routes/app_routes.dart';
-
-class Dashimport 'package:flutter/material.dart';
-import '../../../routes/app_routes.dart';
+// import '../../../config/app_routes.dart';
+import '../../informasi/presentation/informasi_view.dart';
+import '../../krs/presentation/krs_view.dart';
+import '../../khs/presentation/khs_view.dart';
+import '../../pembayaran/presentation/pembayaran_view.dart';
+import '../../profile/presentation/profile_view.dart';
+import '../../tugasAkhir/presentation/tugas_akhir_view.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});

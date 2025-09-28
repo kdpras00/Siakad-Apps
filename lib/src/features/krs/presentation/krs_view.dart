@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// ================= HALAMAN KRS =================
 class KRSPage extends StatelessWidget {
   const KRSPage({super.key});
 

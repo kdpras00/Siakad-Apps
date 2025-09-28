@@ -9,8 +9,10 @@ import '../features/informasi/presentation/informasi_view.dart';
 import '../features/krs/presentation/krs_view.dart';
 import '../features/khs/presentation/khs_view.dart';
 import '../features/pembayaran/presentation/pembayaran_view.dart';
-import '../features/tugas_akhir/kp/presentation/kp_view.dart';
-import '../features/tugas_akhir/skripsi/presentation/skripsi_view.dart';
+import '../features/tugasAkhir/kp/presentation/kp_view.dart';
+import '../features/tugasAkhir/skripsi/presentation/skripsi_view.dart';
+import '../features/tugasAkhir/presentation/tugas_akhir_view.dart';
+
 
 class AppRoutes {
   static const String login = '/login';
@@ -23,17 +25,19 @@ class AppRoutes {
   static const String pembayaran = '/pembayaran';
   static const String kp = '/kp';
   static const String skripsi = '/skripsi';
+   static const String tugasAkhir = '/tugas-akhir';
 
   static Map<String, WidgetBuilder> routes = {
-    login: (context) => const LoginView(),
-    register: (context) => const RegisterView(),
-    changePassword: (context) => const ChangePasswordView(),
+    login: (context) => const LoginPage(),
+    register: (context) => const RegistrasiAkunPage(),
+    changePassword: (context) => const UbahPasswordPage(),
     dashboard: (context) => const DashboardView(),
-    informasi: (context) => const InformasiView(),
-    krs: (context) => const KrsView(),
-    khs: (context) => const KhsView(),
-    pembayaran: (context) => const PembayaranView(),
-    kp: (context) => const KpView(),
-    skripsi: (context) => const SkripsiView(),
+    informasi: (context) => const InformasiPage(),
+    krs: (context) => const KRSPage(),
+    khs: (context) => const KHSPage(),
+    pembayaran: (context) => const PembayaranPage(),
+    kp: (context) => const KerjaPraktekDetailPage(),
+    skripsi: (context) => const SkripsiDetailPage(),
+    tugasAkhir: (context) => const TugasAkhirPage()  
   };
 }
