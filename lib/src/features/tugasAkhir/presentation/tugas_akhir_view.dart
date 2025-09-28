@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../kp/presentation/kp_view.dart';
 import '../skripsi/presentation/skripsi_view.dart';
 
-
 class TugasAkhirPage extends StatelessWidget {
   const TugasAkhirPage({super.key});
 
@@ -51,7 +50,9 @@ class TugasAkhirPage extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const KerjaPraktekDetailPage()),
+                  MaterialPageRoute(
+                    builder: (context) => const KerjaPraktekDetailPage(),
+                  ),
                 );
               },
             ),
@@ -63,7 +64,9 @@ class TugasAkhirPage extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const SkripsiDetailPage()),
+                  MaterialPageRoute(
+                    builder: (context) => const SkripsiDetailPage(),
+                  ),
                 );
               },
             ),

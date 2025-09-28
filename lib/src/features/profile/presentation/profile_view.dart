@@ -35,11 +35,19 @@ class ProfilePage extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
-                      Icon(Icons.account_circle, size: 100, color: Colors.white),
+                      Icon(
+                        Icons.account_circle,
+                        size: 100,
+                        color: Colors.white,
+                      ),
                       SizedBox(height: 10),
                       Text(
                         'Andini',
-                        style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         '0419108607',
@@ -56,9 +64,9 @@ class ProfilePage extends StatelessWidget {
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 children: <Widget>[
-                  _buildProfileCard('Email', 'kdpras00@gmail.com'),
+                  _buildProfileCard('Email', 'andini@gmail.com'),
                   const SizedBox(height: 10),
-                  _buildProfileCard('Handphone', '085770xxxx02'),
+                  _buildProfileCard('Handphone', '089643xxxx43'),
                   const SizedBox(height: 10),
                   _buildProfileCard('Program Studi', 'Teknik Informatika'),
                   const SizedBox(height: 10),
@@ -68,7 +76,9 @@ class ProfilePage extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const UbahPasswordPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const UbahPasswordPage(),
+                        ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -80,7 +90,10 @@ class ProfilePage extends StatelessWidget {
                         side: const BorderSide(color: Colors.grey),
                       ),
                     ),
-                    child: const Text('Ubah Password', style: TextStyle(fontSize: 18)),
+                    child: const Text(
+                      'Ubah Password',
+                      style: TextStyle(fontSize: 18),
+                    ),
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton(
@@ -90,7 +103,9 @@ class ProfilePage extends StatelessWidget {
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: const Text('Konfirmasi Logout'),
-                            content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
+                            content: const Text(
+                              'Apakah Anda yakin ingin keluar dari aplikasi?',
+                            ),
                             actions: <Widget>[
                               TextButton(
                                 child: const Text('Batal'),
@@ -102,7 +117,9 @@ class ProfilePage extends StatelessWidget {
                                   Navigator.of(context).pop();
                                   Navigator.pushAndRemoveUntil(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                                    MaterialPageRoute(
+                                      builder: (context) => const LoginPage(),
+                                    ),
                                     (Route<dynamic> route) => false,
                                   );
                                 },
@@ -116,7 +133,9 @@ class ProfilePage extends StatelessWidget {
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     child: const Text('LOGOUT', style: TextStyle(fontSize: 18)),
                   ),
@@ -135,7 +154,10 @@ class ProfilePage extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         title: Text(label, style: const TextStyle(color: Colors.grey)),
-        subtitle: Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        subtitle: Text(
+          value,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
       ),
     );
   }
