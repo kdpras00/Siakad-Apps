@@ -56,10 +56,7 @@ class KHSPage extends StatelessWidget {
           const SizedBox(width: 8),
           const Text(
             'SIAKAD FT',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -81,11 +78,22 @@ class KHSPage extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF88D3CE), Color(0xFFC7EBDD)],
+          colors: [
+            Color(0xFF4FACFE), // Soft blue
+            Color(0xFF6DD5FA), // Light cyan
+            Color(0xFFFEE140), // Vibrant yellow
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -110,10 +118,7 @@ class KHSPage extends StatelessWidget {
           ),
           Column(
             children: [
-              Text(
-                'IPK',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
+              Text('IPK', style: TextStyle(color: Colors.white, fontSize: 16)),
               SizedBox(height: 4),
               Text(
                 '3.52',

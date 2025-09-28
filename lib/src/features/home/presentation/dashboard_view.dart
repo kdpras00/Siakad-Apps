@@ -11,7 +11,7 @@ class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
 
   @override
- Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -106,7 +106,7 @@ class DashboardView extends StatelessWidget {
         ],
       ),
     );
-  } 
+  }
 
   Widget _buildDashboardButton(
     BuildContext context,
@@ -137,4 +137,4 @@ class DashboardView extends StatelessWidget {
       ),
     );
   }
-} 
+}

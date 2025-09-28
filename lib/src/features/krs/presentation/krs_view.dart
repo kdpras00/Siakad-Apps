@@ -24,7 +24,13 @@ class KRSPage extends StatelessWidget {
             _buildSemesterItem(context, 'Semester 3', 'Aktif', 22),
             _buildSemesterItem(context, 'Semester 4', 'Aktif', 22),
             _buildSemesterItem(context, 'Semester 5', 'Aktif', 22),
-            _buildSemesterItem(context, 'Semester 6', 'Cuti Kuliah', 0, isCuti: true),
+            _buildSemesterItem(
+              context,
+              'Semester 6',
+              'Cuti Kuliah',
+              0,
+              isCuti: true,
+            ),
             _buildSemesterItem(context, 'Semester 7', 'Aktif', 22),
           ],
         ),
@@ -113,11 +119,22 @@ class _KRSHeader extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF88D3CE), Color(0xFFC7EBDD)],
+          colors: [
+            Color(0xFF4FACFE), // Soft blue
+            Color(0xFF6DD5FA), // Light cyan
+            Color(0xFFFEE140), // Vibrant yellow
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -125,8 +142,10 @@ class _KRSHeader extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('T.A. 2024/2025',
-                  style: TextStyle(color: Colors.white, fontSize: 16)),
+              Text(
+                'T.A. 2024/2025',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
               SizedBox(height: 4),
               Text(
                 'Semester 7',
@@ -153,8 +172,7 @@ class _KRSHeader extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text('SKS',
-                  style: TextStyle(color: Colors.white, fontSize: 16)),
+              Text('SKS', style: TextStyle(color: Colors.white, fontSize: 16)),
             ],
           ),
         ],
@@ -235,23 +253,28 @@ class KRSDetailPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      )),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 8),
-                  Text(schedule,
-                      style: const TextStyle(
-                          color: Colors.white70, fontSize: 14)),
-                  Text(room,
-                      style: const TextStyle(
-                          color: Colors.white70, fontSize: 14)),
+                  Text(
+                    schedule,
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                  Text(
+                    room,
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
                   const SizedBox(height: 8),
-                  Text(lecturer,
-                      style: const TextStyle(
-                          color: Colors.white, fontSize: 14)),
+                  Text(
+                    lecturer,
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                  ),
                 ],
               ),
             ),
