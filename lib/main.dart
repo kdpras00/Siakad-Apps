@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'src/config/app_routes.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,8 +11,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'SIAKAD FTUMT',
-      theme: ThemeData(primarySwatch: Colors.orange, useMaterial3: true),
       debugShowCheckedModeBanner: false,
       home: const LoginPage(),
     );
@@ -1072,7 +1071,7 @@ class KRSDetailPage extends StatelessWidget {
               title: 'Mobile Programming',
               schedule: 'Senin, 08:30 - 10:00 WIB',
               room: 'Ruang A12.7',
-              lecturer: 'KURNAWAN DWI PRASETYO',
+              lecturer: 'Syepry Maulana Husain, S.Kom, MTI',
               cardColor: const Color(0xFF5E2BFF),
             ),
             const SizedBox(height: 16),
