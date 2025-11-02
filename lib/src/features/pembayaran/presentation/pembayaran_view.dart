@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
-// Added import for ProfilePage to fix navigation
+import 'package:provider/provider.dart';
+import 'package:siakad_apps/providers/pembayaran_provider.dart';
+import 'package:siakad_apps/models/pembayaran_model.dart';
 import '../../profile/presentation/profile_view.dart';
 
-class PembayaranPage
-    extends
-        StatelessWidget {
-  const PembayaranPage({
-    super.key,
-  });
+class PembayaranPage extends StatefulWidget {
+  const PembayaranPage({super.key});
 
   @override
-  Widget
-  build(
-    BuildContext
-    context,
-  ) {
+  State<PembayaranPage> createState() => _PembayaranPageState();
+}
+
+class _PembayaranPageState extends State<PembayaranPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<PembayaranProvider>(context, listen: false).loadAllPembayaran();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pembayaranProvider = Provider.of<PembayaranProvider>(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -87,95 +96,62 @@ class PembayaranPage
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(
-          16.0,
-        ),
-        children: [
-          _buildPaymentCard(
-            context: context,
-            semester: 'Semester 1',
-            percentage: '100 %',
-            amount: 'Rp. 10.000.000,-',
-            paid: 'Terbayar: 10.000.000',
-            remaining: 'Sisa: 0',
-            startColor: const Color(
-              0xFF4A148C,
-            ),
-            endColor: const Color(
-              0xFFAB47BC,
-            ),
-          ),
-          const SizedBox(
-            height: 16,
-          ),
-          _buildPaymentCard(
-            context: context,
-            semester: 'Semester 2',
-            percentage: '100 %',
-            amount: 'Rp. 8.000.000,-',
-            paid: 'Terbayar: 8.000.000',
-            remaining: 'Sisa: 0',
-            startColor: const Color(
-              0xFF4A148C,
-            ),
-            endColor: const Color(
-              0xFFAB47BC,
-            ),
-          ),
-          const SizedBox(
-            height: 16,
-          ),
-          _buildPaymentCard(
-            context: context,
-            semester: 'Semester 3',
-            percentage: '100 %',
-            amount: 'Rp. 7.850.000,-',
-            paid: 'Terbayar: 7.850.000',
-            remaining: 'Sisa: 0',
-            startColor: const Color(
-              0xFF4A148C,
-            ),
-            endColor: const Color(
-              0xFFAB47BC,
-            ),
-          ),
-        ],
-      ),
+      body: pembayaranProvider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : pembayaranProvider.errorMessage != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(pembayaranProvider.errorMessage!),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          pembayaranProvider.loadAllPembayaran();
+                        },
+                        child: const Text('Coba Lagi'),
+                      ),
+                    ],
+                  ),
+                )
+              : pembayaranProvider.pembayaranList.isEmpty
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(32.0),
+                        child: Text('Tidak ada data pembayaran'),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16.0),
+                      itemCount: pembayaranProvider.pembayaranList.length,
+                      itemBuilder: (context, index) {
+                        final pembayaran = pembayaranProvider.pembayaranList[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: _buildPaymentCard(
+                            context: context,
+                            pembayaran: pembayaran,
+                            startColor: const Color(0xFF4A148C),
+                            endColor: const Color(0xFFAB47BC),
+                          ),
+                        );
+                      },
+                    ),
     );
   }
 
-  Widget
-  _buildPaymentCard({
-    required BuildContext
-    context,
-    required String
-    semester,
-    required String
-    percentage,
-    required String
-    amount,
-    required String
-    paid,
-    required String
-    remaining,
-    required Color
-    startColor,
-    required Color
-    endColor,
+  Widget _buildPaymentCard({
+    required BuildContext context,
+    required PembayaranModel pembayaran,
+    required Color startColor,
+    required Color endColor,
   }) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder:
-                (
-                  context,
-                ) => PembayaranDetailPage(
-                  semester: semester,
-                  amount: amount,
-                ),
+            builder: (context) => PembayaranDetailPage(pembayaran: pembayaran),
           ),
         );
       },
@@ -220,18 +196,16 @@ class PembayaranPage
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    semester,
+                    pembayaran.semester,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(
-                    height: 4,
-                  ),
+                  const SizedBox(height: 4),
                   Text(
-                    percentage,
+                    '${pembayaran.percentage.toStringAsFixed(0)}%',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 28,
@@ -246,25 +220,23 @@ class PembayaranPage
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    amount,
+                    'Rp. ${pembayaran.totalAmount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')},-',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(
-                    height: 8,
-                  ),
+                  const SizedBox(height: 8),
                   Text(
-                    paid,
+                    'Terbayar: ${pembayaran.paidAmount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
                     style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 11,
                     ),
                   ),
                   Text(
-                    remaining,
+                    'Sisa: ${pembayaran.remainingAmount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
                     style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 11,
@@ -281,18 +253,12 @@ class PembayaranPage
 }
 
 // Halaman Detail Pembayaran
-class PembayaranDetailPage
-    extends
-        StatelessWidget {
-  final String
-  semester;
-  final String
-  amount;
+class PembayaranDetailPage extends StatelessWidget {
+  final PembayaranModel pembayaran;
 
   PembayaranDetailPage({
     super.key,
-    required this.semester,
-    required this.amount,
+    required this.pembayaran,
   });
 
   @override
@@ -367,37 +333,19 @@ class PembayaranDetailPage
                 ),
               ],
             ),
-            const Divider(
-              thickness: 1,
-              height: 20,
-            ),
-            // Row 1
-            _buildDetailRow(
-              'Uang Bangunan',
-              'Rp. 3.000.000',
-              '3.000.000',
-              '0',
-            ),
-            const SizedBox(
-              height: 12,
-            ),
-            // Row 2
-            _buildDetailRow(
-              'Biaya SKS',
-              'Rp. 3.000.000',
-              '2.000.000',
-              '0',
-            ),
-            const SizedBox(
-              height: 12,
-            ),
-            // Row 3
-            _buildDetailRow(
-              'Uang Bangunan',
-              'Rp. 100.000',
-              '100.000',
-              '0',
-            ),
+            const Divider(thickness: 1, height: 20),
+            if (pembayaran.details.isEmpty)
+              const Text('Tidak ada detail pembayaran')
+            else
+              ...pembayaran.details.map((detail) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _buildDetailRow(
+                      detail.komponen,
+                      'Rp. ${detail.total.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                      detail.paid.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.'),
+                      detail.remaining.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.'),
+                    ),
+                  )),
           ],
         ),
       ),

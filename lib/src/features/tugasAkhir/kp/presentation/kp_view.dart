@@ -1,61 +1,123 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:siakad_apps/providers/kp_provider.dart';
+import 'package:siakad_apps/models/kp_model.dart';
 
-class KerjaPraktekDetailPage extends StatelessWidget {
+class KerjaPraktekDetailPage extends StatefulWidget {
   const KerjaPraktekDetailPage({super.key});
 
   @override
+  State<KerjaPraktekDetailPage> createState() => _KerjaPraktekDetailPageState();
+}
+
+class _KerjaPraktekDetailPageState extends State<KerjaPraktekDetailPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<KPProvider>(context, listen: false).loadKerjaPraktek();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final kpProvider = Provider.of<KPProvider>(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Kerja Praktek")),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildProgressHeader(
-              title: "Kerja Praktek",
-              status: "DAFTAR JUDUL",
-              gradientColors: const [Color(0xFF0D47A1), Color(0xFF1976D2)],
-            ),
-            const SizedBox(height: 20),
-            buildInfoRow(
-              "JUDUL KERJA PRAKTEK",
-              "Analisa dan Perancangan Aplikasi Sistem Akademik Berbasis Mobile",
-            ),
-            buildInfoRow(
-              "TEMPAT PENELITIAN",
-              "Fakultas Teknik Universitas Muhammadiyah Tangerang",
-            ),
-            buildInfoRow(
-              "ALAMAT PENELITIAN",
-              "Jalan Perintis Kemerdekaan I Cikokol Tangerang",
-            ),
-            buildInfoRow("PEMBIMBING", "Syepry Maulana Husain, S.Kom, MTI"),
-            const SizedBox(height: 20),
-            const Divider(),
-            const SizedBox(height: 10),
-            buildTimelineItem(
-              icon: Icons.assignment,
-              title: "Pendaftaran Judul",
-              date: "29-10-2024",
-              isDone: true,
-            ),
-            buildTimelineItem(
-              icon: Icons.monetization_on,
-              title: "Verifikasi Keuangan",
-              date: "29-10-2024",
-              isDone: true,
-            ),
-            buildTimelineItem(
-              icon: Icons.check_circle_outline,
-              title: "Verifikasi Akademik",
-              date: "29-10-2024",
-              isDone: false,
-            ),
-          ],
+      appBar: AppBar(
+        title: const Text("Kerja Praktek"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
+      body: kpProvider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : kpProvider.errorMessage != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(kpProvider.errorMessage!),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          kpProvider.loadKerjaPraktek();
+                        },
+                        child: const Text('Coba Lagi'),
+                      ),
+                    ],
+                  ),
+                )
+              : kpProvider.kp == null
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(32.0),
+                        child: Text('Belum ada data Kerja Praktek'),
+                      ),
+                    )
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildProgressHeader(
+                            title: "Kerja Praktek",
+                            status: kpProvider.kp!.status,
+                            gradientColors: const [Color(0xFF0D47A1), Color(0xFF1976D2)],
+                          ),
+                          const SizedBox(height: 20),
+                          buildInfoRow(
+                            "JUDUL KERJA PRAKTEK",
+                            kpProvider.kp!.judul,
+                          ),
+                          buildInfoRow(
+                            "TEMPAT PENELITIAN",
+                            kpProvider.kp!.tempatPenelitian,
+                          ),
+                          buildInfoRow(
+                            "ALAMAT PENELITIAN",
+                            kpProvider.kp!.alamatPenelitian,
+                          ),
+                          buildInfoRow("PEMBIMBING", kpProvider.kp!.pembimbing),
+                          const SizedBox(height: 20),
+                          const Divider(),
+                          const SizedBox(height: 10),
+                          if (kpProvider.kp!.timeline.isEmpty)
+                            const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Text('Belum ada timeline'),
+                              ),
+                            )
+                          else
+                            ...kpProvider.kp!.timeline.map((item) => buildTimelineItem(
+                                  icon: _getIconFromName(item.iconName),
+                                  title: item.stepName,
+                                  date: item.stepDate,
+                                  isDone: item.isDone,
+                                )),
+                        ],
+                      ),
+                    ),
     );
+  }
+
+  IconData _getIconFromName(String iconName) {
+    switch (iconName) {
+      case 'assignment':
+        return Icons.assignment;
+      case 'monetization_on':
+        return Icons.monetization_on;
+      case 'check_circle_outline':
+        return Icons.check_circle_outline;
+      case 'description':
+        return Icons.description;
+      case 'presentation':
+        return Icons.slideshow;
+      default:
+        return Icons.assignment;
+    }
   }
 }
 

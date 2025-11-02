@@ -1,10 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../../providers/information_provider.dart';
+import '../../../../models/information_model.dart';
 
-class InformasiPage extends StatelessWidget {
+class InformasiPage extends StatefulWidget {
   const InformasiPage({super.key});
 
   @override
+  State<InformasiPage> createState() => _InformasiPageState();
+}
+
+class _InformasiPageState extends State<InformasiPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<InformationProvider>(context, listen: false).loadAllInformation();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final informationProvider = Provider.of<InformationProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -39,44 +57,71 @@ class InformasiPage extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: <Widget>[
-          InformasiItem(
-            title: 'Informasi 2',
-            date: '20 Oktober 2024',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const InformasiDetailPage(
-                    title: 'Informasi 2',
-                    content:
-                        'Lorem Ipsum adalah contoh teks atau dummy dalam industri percetakan dan penataan huruf atau typesetting. '
-                        'Lorem Ipsum telah menjadi standar contoh teks sejak tahun 1500an...',
+      body: informationProvider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : informationProvider.errorMessage != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(informationProvider.errorMessage!),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          informationProvider.loadAllInformation();
+                        },
+                        child: const Text('Coba Lagi'),
+                      ),
+                    ],
                   ),
-                ),
-              );
-            },
-          ),
-          InformasiItem(
-            title: 'Informasi 1',
-            date: '19 Oktober 2024',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const InformasiDetailPage(
-                    title: 'Informasi 1',
-                    content: 'Detail isi dari informasi 1 akan ditambahkan di sini.',
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
+                )
+              : informationProvider.informationList.isEmpty
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(32.0),
+                        child: Text('Tidak ada informasi'),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16.0),
+                      itemCount: informationProvider.informationList.length,
+                      itemBuilder: (context, index) {
+                        final information = informationProvider.informationList[index];
+                        return InformasiItem(
+                          title: information.title,
+                          date: information.createdAt != null
+                              ? '${information.createdAt!.day} ${_getMonthName(information.createdAt!.month)} ${information.createdAt!.year}'
+                              : 'Tanpa tanggal',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => InformasiDetailPage(information: information),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
     );
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    return months[month - 1];
   }
 }
 
@@ -97,6 +142,7 @@ class InformasiItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
+      margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(
@@ -117,13 +163,11 @@ class InformasiItem extends StatelessWidget {
 
 // Halaman detail informasi
 class InformasiDetailPage extends StatelessWidget {
-  final String title;
-  final String content;
+  final InformationModel information;
 
   const InformasiDetailPage({
     super.key,
-    required this.title,
-    required this.content,
+    required this.information,
   });
 
   @override
@@ -148,15 +192,50 @@ class InformasiDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            if (information.category != null)
+              Chip(
+                label: Text(information.category!),
+                backgroundColor: Colors.orange[100],
+              ),
+            const SizedBox(height: 16),
             Text(
-              title,
+              information.title,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
+            if (information.createdAt != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8, bottom: 16),
+                child: Text(
+                  '${information.createdAt!.day} ${_getMonthName(information.createdAt!.month)} ${information.createdAt!.year}',
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ),
             const SizedBox(height: 16),
-            Text(content, style: const TextStyle(fontSize: 16)),
+            Text(
+              information.content,
+              style: const TextStyle(fontSize: 16, height: 1.5),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    return months[month - 1];
   }
 }

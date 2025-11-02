@@ -1,44 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:siakad_apps/providers/khs_provider.dart';
+import 'package:siakad_apps/models/khs_model.dart';
 
-// =====================
-// Halaman KHS (Kartu Hasil Studi)
-// =====================
-class KHSPage extends StatelessWidget {
+class KHSPage extends StatefulWidget {
   const KHSPage({super.key});
 
   @override
+  State<KHSPage> createState() => _KHSPageState();
+}
+
+class _KHSPageState extends State<KHSPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<KHSProvider>(context, listen: false).loadKHSRekap();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final khsProvider = Provider.of<KHSProvider>(context);
+
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            _buildHeader(),
-            const SizedBox(height: 20),
-            const Text(
-              'Semua Semester',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const Divider(),
-            // Daftar Semester KHS
-            _buildSemesterKHSItem(context, 'Semester 1', 'Aktif', 3.8),
-            _buildSemesterKHSItem(context, 'Semester 2', 'Aktif', 3.62),
-            _buildSemesterKHSItem(context, 'Semester 3', 'Aktif', 3.38),
-            _buildSemesterKHSItem(context, 'Semester 4', 'Aktif', 3.76),
-            _buildSemesterKHSItem(context, 'Semester 5', 'Aktif', 3.56),
-            _buildSemesterKHSItem(
-              context,
-              'Semester 6',
-              'Cuti Kuliah',
-              0,
-              isCuti: true,
-            ),
-            _buildSemesterKHSItem(context, 'Semester 7', 'Aktif', 0),
-          ],
-        ),
-      ),
+      body: khsProvider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : khsProvider.errorMessage != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(khsProvider.errorMessage!),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          khsProvider.loadKHSRekap();
+                        },
+                        child: const Text('Coba Lagi'),
+                      ),
+                    ],
+                  ),
+                )
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildHeader(khsProvider.rekap),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Semua Semester',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const Divider(),
+                      if (khsProvider.khsList.isEmpty)
+                        const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(32.0),
+                            child: Text('Tidak ada data KHS'),
+                          ),
+                        )
+                      else
+                        ...khsProvider.khsList.map((khs) => _buildSemesterKHSItem(
+                              context,
+                              khs.semester,
+                              khs.ip == 0 ? 'Cuti Kuliah' : 'Aktif',
+                              khs.ip,
+                              isCuti: khs.ip == 0,
+                            )),
+                    ],
+                  ),
+                ),
     );
   }
 
@@ -73,15 +107,15 @@ class KHSPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(KHSRekapModel? rekap) {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
-            Color(0xFF4FACFE), // Soft blue
-            Color(0xFF6DD5FA), // Light cyan
-            Color(0xFFFEE140), // Vibrant yellow
+            Color(0xFF4FACFE),
+            Color(0xFF6DD5FA),
+            Color(0xFFFEE140),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -95,20 +129,20 @@ class KHSPage extends StatelessWidget {
           ),
         ],
       ),
-      child: const Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Total Mata Kuliah',
                 style: TextStyle(color: Colors.white, fontSize: 16),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
-                '112',
-                style: TextStyle(
+                '${rekap?.totalMataKuliah ?? 0}',
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -118,11 +152,11 @@ class KHSPage extends StatelessWidget {
           ),
           Column(
             children: [
-              Text('IPK', style: TextStyle(color: Colors.white, fontSize: 16)),
-              SizedBox(height: 4),
+              const Text('IPK', style: TextStyle(color: Colors.white, fontSize: 16)),
+              const SizedBox(height: 4),
               Text(
-                '3.52',
-                style: TextStyle(
+                '${rekap?.ipk.toStringAsFixed(2) ?? '0.00'}',
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -139,7 +173,7 @@ class KHSPage extends StatelessWidget {
     BuildContext context,
     String title,
     String status,
-    double ipk, {
+    double ip, {
     bool isCuti = false,
   }) {
     Color ipkColor = isCuti ? Colors.red[200]! : Colors.green[200]!;
@@ -157,17 +191,22 @@ class KHSPage extends StatelessWidget {
             borderRadius: BorderRadius.circular(5),
           ),
           child: Text(
-            ipk.toString(),
+            ip.toStringAsFixed(2),
             style: TextStyle(
               color: isCuti ? Colors.red[800] : Colors.green[800],
             ),
           ),
         ),
         onTap: () {
+          final khsProvider = Provider.of<KHSProvider>(context, listen: false);
+          final khs = khsProvider.khsList.firstWhere(
+            (k) => k.semester == title,
+            orElse: () => khsProvider.khsList.first,
+          );
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => KHSDetailPage(semester: title),
+              builder: (context) => KHSDetailPage(khs: khs),
             ),
           );
         },
@@ -176,29 +215,26 @@ class KHSPage extends StatelessWidget {
   }
 }
 
-// =====================
-// Halaman Detail KHS
-// =====================
 class KHSDetailPage extends StatelessWidget {
-  final String semester;
+  final KHSModel khs;
 
-  const KHSDetailPage({super.key, required this.semester});
+  const KHSDetailPage({super.key, required this.khs});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: <Widget>[
-            _buildMataKuliahItem('Algoritma Pemrograman', 'A'),
-            _buildMataKuliahItem('Kalkulus 1', 'B'),
-            _buildMataKuliahItem('Arsitektur dan Organisasi Komputer', 'A'),
-            _buildMataKuliahItem('Pengantar Teknologi Informasi', 'B'),
-          ],
-        ),
-      ),
+      body: khs.details.isEmpty
+          ? const Center(child: Text('Tidak ada data'))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: khs.details.map((detail) => _buildMataKuliahItem(
+                      detail.namaMataKuliah,
+                      detail.nilai,
+                    )).toList(),
+              ),
+            ),
     );
   }
 
@@ -211,7 +247,7 @@ class KHSDetailPage extends StatelessWidget {
         onPressed: () => Navigator.pop(context),
       ),
       title: Text(
-        'Detail KHS $semester',
+        'Detail KHS ${khs.semester}',
         style: const TextStyle(
           color: Colors.black,
           fontWeight: FontWeight.bold,

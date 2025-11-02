@@ -1,61 +1,123 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:siakad_apps/providers/skripsi_provider.dart';
+import 'package:siakad_apps/models/skripsi_model.dart';
 
-class SkripsiDetailPage extends StatelessWidget {
+class SkripsiDetailPage extends StatefulWidget {
   const SkripsiDetailPage({super.key});
 
   @override
+  State<SkripsiDetailPage> createState() => _SkripsiDetailPageState();
+}
+
+class _SkripsiDetailPageState extends State<SkripsiDetailPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<SkripsiProvider>(context, listen: false).loadSkripsi();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final skripsiProvider = Provider.of<SkripsiProvider>(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Skripsi")),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildProgressHeader(
-              title: "Skripsi",
-              status: "DAFTAR JUDUL",
-              gradientColors: const [Color(0xFFFFB300), Color(0xFFFFCC33)],
-            ),
-            const SizedBox(height: 20),
-            buildInfoRow(
-              "JUDUL SKRIPSI",
-              "Analisa dan Perancangan Aplikasi Sistem Akademik Berbasis Mobile",
-            ),
-            buildInfoRow(
-              "TEMPAT PENELITIAN",
-              "Fakultas Teknik Universitas Muhammadiyah Tangerang",
-            ),
-            buildInfoRow(
-              "ALAMAT PENELITIAN",
-              "Jalan Perintis Kemerdekaan I Cikokol Tangerang",
-            ),
-            buildInfoRow("PEMBIMBING", "Syepry Maulana Husain, S.Kom, MTI"),
-            const SizedBox(height: 20),
-            const Divider(),
-            const SizedBox(height: 10),
-            buildTimelineItem(
-              icon: Icons.assignment,
-              title: "Pendaftaran Judul",
-              date: "29-10-2024",
-              isDone: true,
-            ),
-            buildTimelineItem(
-              icon: Icons.monetization_on,
-              title: "Verifikasi Keuangan",
-              date: "29-10-2024",
-              isDone: true,
-            ),
-            buildTimelineItem(
-              icon: Icons.check_circle_outline,
-              title: "Verifikasi Akademik",
-              date: "29-10-2024",
-              isDone: false,
-            ),
-          ],
+      appBar: AppBar(
+        title: const Text("Skripsi"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
+      body: skripsiProvider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : skripsiProvider.errorMessage != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(skripsiProvider.errorMessage!),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          skripsiProvider.loadSkripsi();
+                        },
+                        child: const Text('Coba Lagi'),
+                      ),
+                    ],
+                  ),
+                )
+              : skripsiProvider.skripsi == null
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(32.0),
+                        child: Text('Belum ada data Skripsi'),
+                      ),
+                    )
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildProgressHeader(
+                            title: "Skripsi",
+                            status: skripsiProvider.skripsi!.status,
+                            gradientColors: const [Color(0xFFFFB300), Color(0xFFFFCC33)],
+                          ),
+                          const SizedBox(height: 20),
+                          buildInfoRow(
+                            "JUDUL SKRIPSI",
+                            skripsiProvider.skripsi!.judul,
+                          ),
+                          buildInfoRow(
+                            "TEMPAT PENELITIAN",
+                            skripsiProvider.skripsi!.tempatPenelitian,
+                          ),
+                          buildInfoRow(
+                            "ALAMAT PENELITIAN",
+                            skripsiProvider.skripsi!.alamatPenelitian,
+                          ),
+                          buildInfoRow("PEMBIMBING", skripsiProvider.skripsi!.pembimbing),
+                          const SizedBox(height: 20),
+                          const Divider(),
+                          const SizedBox(height: 10),
+                          if (skripsiProvider.skripsi!.timeline.isEmpty)
+                            const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Text('Belum ada timeline'),
+                              ),
+                            )
+                          else
+                            ...skripsiProvider.skripsi!.timeline.map((item) => buildTimelineItem(
+                                  icon: _getIconFromName(item.iconName),
+                                  title: item.stepName,
+                                  date: item.stepDate,
+                                  isDone: item.isDone,
+                                )),
+                        ],
+                      ),
+                    ),
     );
+  }
+
+  IconData _getIconFromName(String iconName) {
+    switch (iconName) {
+      case 'assignment':
+        return Icons.assignment;
+      case 'monetization_on':
+        return Icons.monetization_on;
+      case 'check_circle_outline':
+        return Icons.check_circle_outline;
+      case 'description':
+        return Icons.description;
+      case 'presentation':
+        return Icons.slideshow;
+      default:
+        return Icons.assignment;
+    }
   }
 }
 

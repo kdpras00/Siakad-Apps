@@ -16,12 +16,8 @@ class DashboardView extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        // Hapus tombol back karena ini adalah halaman utama setelah login
+        automaticallyImplyLeading: false,
         title: Row(
           children: <Widget>[
             Image.asset('assets/images/logo_umt.png', height: 30),

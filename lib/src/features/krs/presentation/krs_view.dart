@@ -1,90 +1,81 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:siakad_apps/providers/krs_provider.dart';
+import 'package:siakad_apps/models/krs_model.dart';
 
-class KRSPage
-    extends
-        StatelessWidget {
-  const KRSPage({
-    super.key,
-  });
+class KRSPage extends StatefulWidget {
+  const KRSPage({super.key});
 
   @override
-  Widget
-  build(
-    BuildContext
-    context,
-  ) {
+  State<KRSPage> createState() => _KRSPageState();
+}
+
+class _KRSPageState extends State<KRSPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<KRSProvider>(context, listen: false).loadAllKRS();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final krsProvider = Provider.of<KRSProvider>(context);
+
     return Scaffold(
-      appBar: _buildAppBar(
-        context,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(
-          16.0,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children:
-              <
-                Widget
-              >[
-                const _KRSHeader(),
-                const SizedBox(
-                  height: 20,
-                ),
-                const Text(
-                  'Semua Semester',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+      appBar: _buildAppBar(context),
+      body: krsProvider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : krsProvider.errorMessage != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(krsProvider.errorMessage!),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          krsProvider.loadAllKRS();
+                        },
+                        child: const Text('Coba Lagi'),
+                      ),
+                    ],
+                  ),
+                )
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (krsProvider.krsList.isNotEmpty) _KRSHeader(krs: krsProvider.krsList.first) else const SizedBox(),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Semua Semester',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Divider(),
+                      if (krsProvider.krsList.isEmpty)
+                        const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(32.0),
+                            child: Text('Tidak ada data KRS'),
+                          ),
+                        )
+                      else
+                        ...krsProvider.krsList.map((krs) => _buildSemesterItem(
+                              context,
+                              krs.semester,
+                              krs.status,
+                              krs.totalSks,
+                              isCuti: krs.status.toLowerCase().contains('cuti'),
+                            )),
+                    ],
                   ),
                 ),
-                const Divider(),
-                _buildSemesterItem(
-                  context,
-                  'Semester 1',
-                  'Aktif',
-                  22,
-                ),
-                _buildSemesterItem(
-                  context,
-                  'Semester 2',
-                  'Aktif',
-                  22,
-                ),
-                _buildSemesterItem(
-                  context,
-                  'Semester 3',
-                  'Aktif',
-                  22,
-                ),
-                _buildSemesterItem(
-                  context,
-                  'Semester 4',
-                  'Aktif',
-                  22,
-                ),
-                _buildSemesterItem(
-                  context,
-                  'Semester 5',
-                  'Aktif',
-                  22,
-                ),
-                _buildSemesterItem(
-                  context,
-                  'Semester 6',
-                  'Cuti Kuliah',
-                  0,
-                  isCuti: true,
-                ),
-                _buildSemesterItem(
-                  context,
-                  'Semester 7',
-                  'Aktif',
-                  22,
-                ),
-              ],
-        ),
-      ),
     );
   }
 
@@ -152,30 +143,14 @@ class KRSPage
     );
   }
 
-  Widget
-  _buildSemesterItem(
-    BuildContext
-    context,
-    String
-    title,
-    String
-    status,
-    int
-    sks, {
-    bool
-        isCuti =
-        false,
+  Widget _buildSemesterItem(
+    BuildContext context,
+    String title,
+    String status,
+    int sks, {
+    bool isCuti = false,
   }) {
-    Color
-    statusColor =
-        isCuti
-        ? Colors.red[200]!
-        : Colors.green[200]!;
-    Color
-    sksColor =
-        isCuti
-        ? Colors.red[50]!
-        : Colors.green[50]!;
+    Color sksColor = isCuti ? Colors.red[50]! : Colors.green[50]!;
 
     return Card(
       elevation: 1,
@@ -213,13 +188,15 @@ class KRSPage
           ),
         ),
         onTap: () {
+          final krsProvider = Provider.of<KRSProvider>(context, listen: false);
+          final krs = krsProvider.krsList.firstWhere(
+            (k) => k.semester == title,
+            orElse: () => krsProvider.krsList.first,
+          );
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder:
-                  (
-                    context,
-                  ) => const KRSDetailPage(),
+              builder: (context) => KRSDetailPage(krs: krs),
             ),
           );
         },
@@ -229,10 +206,10 @@ class KRSPage
 }
 
 // ================= HEADER KRS =================
-class _KRSHeader
-    extends
-        StatelessWidget {
-  const _KRSHeader();
+class _KRSHeader extends StatelessWidget {
+  final KRSModel? krs;
+  
+  _KRSHeader({this.krs});
 
   @override
   Widget
@@ -265,9 +242,7 @@ class _KRSHeader
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(
-              0.1,
-            ),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(
               0,
@@ -276,43 +251,34 @@ class _KRSHeader
           ),
         ],
       ),
-      child: const Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children:
-            <
-              Widget
-            >[
+        children: <Widget>[
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'T.A. 2024/2025',
-                    style: TextStyle(
+                    krs?.tahunAjaran ?? 'T.A. 2024/2025',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                     ),
                   ),
-                  SizedBox(
-                    height: 4,
-                  ),
+                  const SizedBox(height: 4),
                   Text(
-                    'Semester 7',
-                    style: TextStyle(
+                    krs?.semester ?? 'Semester 7',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(
-                    height: 8,
-                  ),
+                  const SizedBox(height: 8),
                   Chip(
                     label: Text(
-                      'Aktif',
-                      style: TextStyle(
-                        color: Color(
-                          0xFF0C2461,
-                        ),
+                      krs?.status ?? 'Aktif',
+                      style: const TextStyle(
+                        color: Color(0xFF0C2461),
                       ),
                     ),
                     backgroundColor: Colors.white,
@@ -322,14 +288,14 @@ class _KRSHeader
               Column(
                 children: [
                   Text(
-                    '22',
-                    style: TextStyle(
+                    '${krs?.totalSks ?? 22}',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 48,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
+                  const Text(
                     'SKS',
                     style: TextStyle(
                       color: Colors.white,
@@ -346,106 +312,77 @@ class _KRSHeader
 
 // ================= HALAMAN DETAIL KRS =================
 
-class KRSDetailPage
-    extends
-        StatelessWidget {
+class KRSDetailPage extends StatelessWidget {
+  final KRSModel krs;
+  
   const KRSDetailPage({
     super.key,
+    required this.krs,
   });
 
   @override
-  Widget
-  build(
-    BuildContext
-    context,
-  ) {
+  Widget build(BuildContext context) {
+    final colors = [
+      [const Color(0xFF7B3FF2), const Color(0xFF2E3192)],
+      [const Color(0xFFFFC837), const Color(0xFFFF8008)],
+      [const Color(0xFF4FACFE), const Color(0xFF00F2FE)],
+      [const Color(0xFF43E97B), const Color(0xFF38F9D7)],
+    ];
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-          ),
-          onPressed: () => Navigator.pop(
-            context,
-          ),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Detail KRS',
-          style: TextStyle(
+        title: Text(
+          'Detail KRS ${krs.semester}',
+          style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(
-          16.0,
-        ),
-        child: Column(
-          children:
-              <
-                Widget
-              >[
-                // Kartu 1: Mobile Programming (Ungu-Biru)
-                _buildCourseCard(
-                  title: 'Mobile Programming',
-                  schedule: 'Senin, 08:30 - 10:00 WIB',
-                  room: 'Ruang A12.7',
-                  lecturer: 'Syepry Maulana Husain, S.Kom, MTI',
-                  // Gradient Ungu ke Biru sesuai desain
-                  startColor: const Color(
-                    0xFF7B3FF2,
-                  ), // Ungu terang
-                  endColor: const Color(
-                    0xFF2E3192,
-                  ), // Biru tua
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-                // Kartu 2: Analisis dan Perancangan SI (Oranye-Kuning)
-                _buildCourseCard(
-                  title: 'Analisis dan Perancangan\nSistem Informasi',
-                  schedule: 'Senin, 08:30 - 10:00 WIB',
-                  room: 'Ruang A12.7',
-                  lecturer: 'Yani Sugiani, M.Kom',
-                  // Gradient Kuning ke Oranye sesuai desain
-                  startColor: const Color(
-                    0xFFFFC837,
-                  ), // Kuning
-                  endColor: const Color(
-                    0xFFFF8008,
-                  ), // Oranye
-                ),
-              ],
-        ),
-      ),
+      body: krs.details.isEmpty
+          ? const Center(child: Text('Tidak ada mata kuliah'))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: krs.details.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final detail = entry.value;
+                  final colorPair = colors[index % colors.length];
+                  
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: _buildCourseCard(
+                      title: detail.namaMataKuliah,
+                      schedule: detail.jadwal,
+                      room: detail.ruangan,
+                      lecturer: detail.dosen,
+                      startColor: colorPair[0],
+                      endColor: colorPair[1],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
     );
   }
 
-  Widget
-  _buildCourseCard({
-    required String
-    title,
-    required String
-    schedule,
-    required String
-    room,
-    required String
-    lecturer,
-    required Color
-    startColor,
-    required Color
-    endColor,
+  Widget _buildCourseCard({
+    required String title,
+    required String schedule,
+    required String room,
+    required String lecturer,
+    required Color startColor,
+    required Color endColor,
   }) {
-    const double
-    borderRadiusValue =
-        16.0;
+    const double borderRadiusValue = 16.0;
 
     return Card(
       elevation: 3,
@@ -483,9 +420,7 @@ class KRSDetailPage
                   height: 50,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(
-                      0.3,
-                    ),
+                    color: Colors.white.withValues(alpha: 0.3),
                   ),
                   child: const Icon(
                     Icons.person,

@@ -1,34 +1,24 @@
 import 'package:flutter/material.dart';
-// Asumsi path import ini benar dari struktur proyek Anda
+import 'package:provider/provider.dart';
+import '../../../../providers/auth_provider.dart';
 import '../../auth/presentation/change_password_view.dart';
 import '../../auth/presentation/login_view.dart';
 
-class ProfilePage
-    extends
-        StatelessWidget {
-  const ProfilePage({
-    super.key,
-  });
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
 
-  // Data yang disalin dari gambar
-  static const String
-  _name =
-      'Shevrie Maulana Husain';
-  static const String
-  _nim =
-      '0419108607';
-  static const String
-  _email =
-      'syepry.maulana@umt.ac.id';
-  static const String
-  _handphone =
-      '081282xxxx98';
-  static const String
-  _programStudi =
-      'Teknik Informatika';
-  static const String
-  _semester =
-      '7 (Tujuh)';
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AuthProvider>(context, listen: false).loadProfile();
+    });
+  }
 
   // Warna yang mendekati desain
   static const Color
@@ -41,11 +31,10 @@ class ProfilePage
   ); // Kuning/Emas
 
   @override
-  Widget
-  build(
-    BuildContext
-    context,
-  ) {
+  Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user;
+
     return Scaffold(
       // AppBar custom dengan gradient dan judul 'Profile'
       appBar: PreferredSize(
@@ -111,9 +100,9 @@ class ProfilePage
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children: [
                       // Icon Profil Putih
-                      CircleAvatar(
+                      const CircleAvatar(
                         radius: 40,
                         backgroundColor: Colors.white,
                         child: Icon(
@@ -122,13 +111,11 @@ class ProfilePage
                           color: _primaryColor,
                         ),
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
+                      const SizedBox(height: 10),
                       // Nama Pengguna
                       Text(
-                        _name,
-                        style: TextStyle(
+                        user?.name ?? 'Loading...',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -136,8 +123,8 @@ class ProfilePage
                       ),
                       // NIM
                       Text(
-                        _nim,
-                        style: TextStyle(
+                        user?.nim ?? '',
+                        style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 14,
                         ),
@@ -157,10 +144,7 @@ class ProfilePage
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children:
-                          <
-                            Widget
-                          >[
+                      children: <Widget>[
                             // Card putih untuk detail profil
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -174,9 +158,7 @@ class ProfilePage
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.grey.withOpacity(
-                                      0.2,
-                                    ),
+                                    color: Colors.grey.withValues(alpha: 0.2),
                                     spreadRadius: 1,
                                     blurRadius: 5,
                                     offset: const Offset(
@@ -190,31 +172,22 @@ class ProfilePage
                                 children: [
                                   _buildProfileRow(
                                     'Email',
-                                    _email,
+                                    user?.email ?? 'Loading...',
                                   ),
-                                  const Divider(
-                                    height: 1,
-                                    thickness: 1,
-                                  ),
+                                  const Divider(height: 1, thickness: 1),
                                   _buildProfileRow(
                                     'Handphone',
-                                    _handphone,
+                                    user?.phone ?? '-',
                                   ),
-                                  const Divider(
-                                    height: 1,
-                                    thickness: 1,
-                                  ),
+                                  const Divider(height: 1, thickness: 1),
                                   _buildProfileRow(
                                     'Program Studi',
-                                    _programStudi,
+                                    user?.programStudi ?? 'Loading...',
                                   ),
-                                  const Divider(
-                                    height: 1,
-                                    thickness: 1,
-                                  ),
+                                  const Divider(height: 1, thickness: 1),
                                   _buildProfileRow(
                                     'Semester',
-                                    _semester,
+                                    user?.semester != null ? '${user!.semester}' : 'Loading...',
                                   ),
                                 ],
                               ),
@@ -311,26 +284,18 @@ class ProfilePage
                                                     child: const Text(
                                                       'Logout',
                                                     ),
-                                                    onPressed: () {
-                                                      Navigator.of(
-                                                        context,
-                                                      ).pop();
-                                                      Navigator.pushAndRemoveUntil(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          // Hapus 'const' untuk mengatasi error
-                                                          builder:
-                                                              (
-                                                                context,
-                                                              ) => LoginPage(),
-                                                        ),
-                                                        (
-                                                          Route<
-                                                            dynamic
-                                                          >
-                                                          route,
-                                                        ) => false,
-                                                      );
+                                                    onPressed: () async {
+                                                      await Provider.of<AuthProvider>(context, listen: false).logout();
+                                                      if (context.mounted) {
+                                                        Navigator.of(context).pop();
+                                                        Navigator.pushAndRemoveUntil(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder: (context) => const LoginPage(),
+                                                          ),
+                                                          (route) => false,
+                                                        );
+                                                      }
                                                     },
                                                   ),
                                                 ],
