@@ -46,12 +46,14 @@ class _InformasiPageState extends State<InformasiPage> {
             ),
           ],
         ),
-        actions: const <Widget>[
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: Icon(Icons.notifications, color: Colors.grey),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Colors.grey),
+            onPressed: () {
+              // Sudah di halaman Informasi; tetap di halaman yang sama
+            },
           ),
-          Padding(
+          const Padding(
             padding: EdgeInsets.only(right: 16.0),
             child: Icon(Icons.account_circle, color: Colors.grey),
           ),

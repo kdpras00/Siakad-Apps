@@ -18,6 +18,7 @@ class DashboardView extends StatelessWidget {
         elevation: 0,
         // Hapus tombol back karena ini adalah halaman utama setelah login
         automaticallyImplyLeading: false,
+        // ignore: prefer_const_constructors
         title: Row(
           children: <Widget>[
             Image.asset('assets/images/logo_umt.png', height: 30),
@@ -32,9 +33,14 @@ class DashboardView extends StatelessWidget {
           ],
         ),
         actions: <Widget>[
-          const Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: Icon(Icons.notifications, color: Colors.grey),
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Colors.grey),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const InformasiPage()),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.account_circle, color: Colors.grey),

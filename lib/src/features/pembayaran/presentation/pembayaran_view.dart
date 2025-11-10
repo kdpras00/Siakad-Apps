@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:siakad_apps/providers/pembayaran_provider.dart';
 import 'package:siakad_apps/models/pembayaran_model.dart';
 import '../../profile/presentation/profile_view.dart';
+import '../../informasi/presentation/informasi_view.dart';
 
 class PembayaranPage extends StatefulWidget {
   const PembayaranPage({super.key});
@@ -65,15 +66,19 @@ class _PembayaranPageState extends State<PembayaranPage> {
               ],
         ),
         actions: [
-          // Changed from Icons.notifications_outlined to Icons.notifications to match standard
-          const Padding(
-            padding: EdgeInsets.only(
-              right: 16.0,
-            ),
-            child: Icon(
+          IconButton(
+            icon: const Icon(
               Icons.notifications,
               color: Colors.grey,
             ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const InformasiPage(),
+                ),
+              );
+            },
           ),
           // Changed from Icons.account_circle_outlined to Icons.account_circle to match standard
           IconButton(

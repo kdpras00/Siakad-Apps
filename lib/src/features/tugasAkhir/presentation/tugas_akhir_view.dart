@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../kp/presentation/kp_view.dart';
 import '../skripsi/presentation/skripsi_view.dart';
+import '../../informasi/presentation/informasi_view.dart';
 
 class TugasAkhirPage extends StatelessWidget {
   const TugasAkhirPage({super.key});
@@ -28,12 +29,17 @@ class TugasAkhirPage extends StatelessWidget {
             ),
           ],
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: Icon(Icons.notifications, color: Colors.grey),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Colors.grey),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const InformasiPage()),
+              );
+            },
           ),
-          Padding(
+          const Padding(
             padding: EdgeInsets.only(right: 16.0),
             child: Icon(Icons.account_circle, color: Colors.grey),
           ),

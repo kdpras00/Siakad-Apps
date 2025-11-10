@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:siakad_apps/providers/khs_provider.dart';
 import 'package:siakad_apps/models/khs_model.dart';
+import '../../informasi/presentation/informasi_view.dart';
 
 class KHSPage extends StatefulWidget {
   const KHSPage({super.key});
@@ -94,12 +95,17 @@ class _KHSPageState extends State<KHSPage> {
           ),
         ],
       ),
-      actions: const <Widget>[
-        Padding(
-          padding: EdgeInsets.only(right: 16.0),
-          child: Icon(Icons.notifications, color: Colors.grey),
+      actions: <Widget>[
+        IconButton(
+          icon: const Icon(Icons.notifications, color: Colors.grey),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const InformasiPage()),
+            );
+          },
         ),
-        Padding(
+        const Padding(
           padding: EdgeInsets.only(right: 16.0),
           child: Icon(Icons.account_circle, color: Colors.grey),
         ),
