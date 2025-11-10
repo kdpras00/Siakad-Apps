@@ -134,6 +134,8 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _usernameController,
+                  enableSuggestions: false,
+                  autocorrect: false,
                   decoration: InputDecoration(
                     hintText: 'username atau email',
                     border: OutlineInputBorder(
@@ -160,6 +162,9 @@ class _LoginPageState extends State<LoginPage> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  autofillHints: null,
                   decoration: InputDecoration(
                     hintText: '••••••••',
                     border: OutlineInputBorder(

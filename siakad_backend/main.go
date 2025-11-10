@@ -277,7 +277,8 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	// Query user from database
 	var id int
-	var name, email, nim, phone, programStudi, semester, passwordHash string
+	var name, email, nim, passwordHash string
+	var phoneNS, programStudiNS, semesterNS sql.NullString
 
 	query := `SELECT id, name, email, nim, phone, program_studi, semester, password 
 	          FROM users 
@@ -285,7 +286,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	          LIMIT 1`
 
 	err := db.QueryRow(query, req.Username, req.Username).Scan(
-		&id, &name, &email, &nim, &phone, &programStudi, &semester, &passwordHash)
+		&id, &name, &email, &nim, &phoneNS, &programStudiNS, &semesterNS, &passwordHash)
 
 	if err == sql.ErrNoRows {
 		log.Printf("DEBUG: User not found - Username: '%s'", req.Username)
@@ -315,6 +316,20 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	// Generate token (simple version, untuk production gunakan JWT)
 	token := fmt.Sprintf("token_%d_%s", id, email)
 
+	// Safely unwrap nullable strings
+	phone := ""
+	if phoneNS.Valid {
+		phone = phoneNS.String
+	}
+	programStudi := ""
+	if programStudiNS.Valid {
+		programStudi = programStudiNS.String
+	}
+	semester := ""
+	if semesterNS.Valid {
+		semester = semesterNS.String
+	}
+
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
 		"success": true,
 		"message": "Login berhasil",
@@ -322,8 +337,8 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 		"user": map[string]interface{}{
 			"id":            id,
 			"name":          name,
-			"nim":           nim,
 			"email":         email,
+			"nim":           nim,
 			"phone":         phone,
 			"program_studi": programStudi,
 			"semester":      semester,
@@ -391,12 +406,13 @@ func handleProfile(w http.ResponseWriter, r *http.Request) {
 
 	// Query user
 	var id int
-	var name, email, nim, phone, programStudi, semester string
+	var name, email, nim string
+	var phoneNS, programStudiNS, semesterNS sql.NullString
 
 	err = db.QueryRow(
 		"SELECT id, name, email, nim, phone, program_studi, semester FROM users WHERE id = ?",
 		userID,
-	).Scan(&id, &name, &email, &nim, &phone, &programStudi, &semester)
+	).Scan(&id, &name, &email, &nim, &phoneNS, &programStudiNS, &semesterNS)
 
 	if err == sql.ErrNoRows {
 		jsonError(w, http.StatusNotFound, "User tidak ditemukan")
@@ -406,6 +422,20 @@ func handleProfile(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Database error in handleProfile: %v", err)
 		jsonError(w, http.StatusInternalServerError, "Database error")
 		return
+	}
+
+	// unwrap nullable fields
+	phone := ""
+	if phoneNS.Valid {
+		phone = phoneNS.String
+	}
+	programStudi := ""
+	if programStudiNS.Valid {
+		programStudi = programStudiNS.String
+	}
+	semester := ""
+	if semesterNS.Valid {
+		semester = semesterNS.String
 	}
 
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
@@ -422,7 +452,67 @@ func handleProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleChangePassword(w http.ResponseWriter, r *http.Request) {
-	jsonError(w, http.StatusNotImplemented, "Fitur change password belum diimplementasikan")
+	// Require auth
+	userID, err := getUserIDFromToken(r)
+	if err != nil {
+		jsonError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	// Parse body
+	var req struct {
+		OldPassword string `json:"old_password"`
+		NewPassword string `json:"new_password"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		jsonError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+	if len(req.NewPassword) < 6 {
+		jsonError(w, http.StatusBadRequest, "Password baru minimal 6 karakter")
+		return
+	}
+
+	// Get current password hash
+	var currentHash string
+	err = db.QueryRow("SELECT password FROM users WHERE id = ? LIMIT 1", userID).Scan(&currentHash)
+	if err == sql.ErrNoRows {
+		jsonError(w, http.StatusNotFound, "User tidak ditemukan")
+		return
+	}
+	if err != nil {
+		log.Printf("Database error in handleChangePassword (select): %v", err)
+		jsonError(w, http.StatusInternalServerError, "Database error")
+		return
+	}
+
+	// Verify old password
+	if !verifyPassword(req.OldPassword, currentHash) {
+		jsonError(w, http.StatusUnauthorized, "Password lama tidak sesuai")
+		return
+	}
+
+	// Hash new password
+	newHashBytes, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		log.Printf("Error hashing new password: %v", err)
+		jsonError(w, http.StatusInternalServerError, "Gagal memproses password baru")
+		return
+	}
+	newHash := string(newHashBytes)
+
+	// Update DB
+	_, err = db.Exec("UPDATE users SET password = ? WHERE id = ?", newHash, userID)
+	if err != nil {
+		log.Printf("Database error in handleChangePassword (update): %v", err)
+		jsonError(w, http.StatusInternalServerError, "Gagal mengubah password")
+		return
+	}
+
+	jsonResponse(w, http.StatusOK, map[string]interface{}{
+		"success": true,
+		"message": "Password berhasil diubah",
+	})
 }
 
 func handleLogout(w http.ResponseWriter, r *http.Request) {
